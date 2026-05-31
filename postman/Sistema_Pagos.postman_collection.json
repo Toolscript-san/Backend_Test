@@ -1,0 +1,199 @@
+{
+  "info": {
+    "name": "Sistema de Pagos API",
+    "description": "Colección para probar todos los endpoints del sistema de pagos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "api_url",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "payment_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "user_id",
+      "value": "1"
+    },
+    {
+      "key": "card_id",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Crear usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('user_id', body.id);",
+                  "    pm.test('Usuario creado', () => pm.expect(body.id).to.be.a('number'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Juan Pérez\",\n  \"email\": \"juan@example.com\",\n  \"phone\": \"+5491112345678\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            }
+          }
+        },
+        {
+          "name": "Listar usuarios",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            }
+          }
+        },
+        {
+          "name": "Obtener usuario por ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["users", "{{user_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tarjetas",
+      "item": [
+        {
+          "name": "Registrar tarjeta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('card_id', body.id);",
+                  "    pm.test('Tarjeta creada', () => pm.expect(body.id).to.be.a('number'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{user_id}},\n  \"card_number\": \"4111111111111111\",\n  \"cardholder\": \"Juan Pérez\",\n  \"expiration_date\": \"12/28\",\n  \"cvv\": \"123\",\n  \"type\": \"credit\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cards",
+              "host": ["{{base_url}}"],
+              "path": ["cards"]
+            }
+          }
+        },
+        {
+          "name": "Listar tarjetas de usuario",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/cards/user/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["cards", "user", "{{user_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pagos",
+      "item": [
+        {
+          "name": "Crear pago",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{user_id}},\n  \"card_id\": {{card_id}},\n  \"amount\": 150.00,\n  \"currency\": \"USD\",\n  \"description\": \"Compra de prueba\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payments",
+              "host": ["{{base_url}}"],
+              "path": ["payments"]
+            }
+          }
+        },
+        {
+          "name": "Historial de pagos de usuario",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/payments/user/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "user", "{{user_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Checks",
+      "item": [
+        {
+          "name": "Health - API Node.js",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{api_url}}/health",
+              "host": ["{{api_url}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Health - Servicio Python",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{payment_url}}/health",
+              "host": ["{{payment_url}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
