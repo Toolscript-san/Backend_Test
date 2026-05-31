@@ -1,0 +1,12 @@
+{
+  "name": "backend-test",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build":            "docker compose --profile test build",
+    "test":             "docker compose --profile test up --abort-on-container-exit --exit-code-from tests",
+    "test:fresh":       "docker compose --profile test up --build --abort-on-container-exit --exit-code-from tests",
+    "test:unit:node":   "cd api && npm test",
+    "test:unit:python": "cd payment-service && python -m pytest tests/ -v"
+  }
+}

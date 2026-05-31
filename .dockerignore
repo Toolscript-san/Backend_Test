@@ -1,0 +1,8 @@
+api/node_modules
+api/.env
+payment-service/__pycache__
+payment-service/*.pyc
+payment-service/.venv
+payment-service/.pytest_cache
+.git
+scripts

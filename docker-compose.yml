@@ -1,0 +1,72 @@
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: pagos_db
+    environment:
+      POSTGRES_USER: pagos_user
+      POSTGRES_PASSWORD: pagos_pass
+      POSTGRES_DB: pagos_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pagos_user -d pagos_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  payment-service:
+    build: ./payment-service
+    container_name: pagos_payment
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./api
+    container_name: pagos_api
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: pagos_user
+      DB_PASSWORD: pagos_pass
+      DB_NAME: pagos_db
+      PAYMENT_SERVICE_URL: http://payment-service:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      payment-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  tests:
+    build:
+      context: .
+      dockerfile: tests/Dockerfile
+    container_name: pagos_tests
+    environment:
+      API_URL: http://api:3000
+      PAYMENT_URL: http://payment-service:8000
+    depends_on:
+      api:
+        condition: service_healthy
+      payment-service:
+        condition: service_healthy
+    profiles:
+      - test
+
+volumes:
+  pgdata:

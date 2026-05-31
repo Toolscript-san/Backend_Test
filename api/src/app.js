@@ -1,6 +1,7 @@
 const express = require("express");
 const usersRouter = require("./routes/users");
 const cardsRouter = require("./routes/cards");
+const paymentsRouter = require("./routes/payments");
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.get("/health", (_req, res) => {
 // Rutas principales de la API
 app.use("/api/users", usersRouter);
 app.use("/api/cards", cardsRouter);
+app.use("/api/payments", paymentsRouter);
 
 // Manejo de rutas no encontradas
 app.use((_req, res) => {
