@@ -25,6 +25,6 @@ COPY payment-service/tests/           ./payment-service/tests/
 COPY payment-service/pytest.ini       ./payment-service/
 
 COPY tests/run-tests.sh ./run-tests.sh
-RUN chmod +x run-tests.sh
+RUN sed -i 's/\r$//' run-tests.sh && chmod +x run-tests.sh
 
 CMD ["./run-tests.sh"]

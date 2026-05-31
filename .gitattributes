@@ -1,0 +1,2 @@
+# Forzar fin de línea LF en archivos shell para compatibilidad con contenedores Linux
+*.sh text eol=lf
